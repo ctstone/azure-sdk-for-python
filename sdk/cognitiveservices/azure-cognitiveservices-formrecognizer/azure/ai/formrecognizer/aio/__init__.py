@@ -24,4 +24,7 @@
 #
 # --------------------------------------------------------------------------
 
-__path__ = __import__('pkgutil').extend_path(__path__, __name__)
+
+from .form_recognizer_client_async import FormRecognizerClientAsync as FormRecognizerClient
+
+__all__ = ['FormRecognizerClient']

@@ -1,0 +1,1 @@
+# Form Recognizer SDK for Python

@@ -24,4 +24,8 @@
 #
 # --------------------------------------------------------------------------
 
-__path__ = __import__('pkgutil').extend_path(__path__, __name__)
+from .form_recognizer_client import FormRecognizerClient
+from .version import VERSION
+
+__all__ = ['FormRecognizerClient']
+__version__ = VERSION
