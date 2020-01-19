@@ -1,4 +1,5 @@
 from ..models import (
+    Model,
     ModelListing,
     ModelsSummary,
     ModelInfo,
@@ -38,3 +39,9 @@ def parse_model_listing(d: dict) -> ModelListing:
         summary=summary,
         model_list=model_list,
         next_link=next_link)
+
+
+def parse_model(d: dict) -> Model:
+    model_info = parse_model_info(d.get('modelInfo'))
+    return Model(
+        model_info=model_info)
