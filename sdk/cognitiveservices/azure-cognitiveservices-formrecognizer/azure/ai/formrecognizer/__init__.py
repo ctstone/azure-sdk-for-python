@@ -24,7 +24,7 @@
 #
 # --------------------------------------------------------------------------
 
-from .form_recognizer_client import FormRecognizerClient
+from .client import FormRecognizerClient
 from .version import VERSION
 
 __all__ = ['FormRecognizerClient']
