@@ -27,10 +27,20 @@
 from typing import Dict
 from azure.core.pipeline import Pipeline
 from azure.core.pipeline.policies import HeadersPolicy, ContentDecodePolicy
-from azure.core.pipeline.transport import RequestsTransport, HttpRequest, RequestsTransportResponse
-from ._policies import ApiKeyCredentialPolicy, FormEndpointPolicy
-from ._requests import create_list_models_request
-from ._serialization.responses import read_model_listing
+from azure.core.pipeline.transport import RequestsTransport, RequestsTransportResponse
+from ._policies import (
+    ApiKeyCredentialPolicy,
+    FormEndpointPolicy,
+)
+from ._requests import (
+    create_list_models_request,
+    create_get_model_request,
+    create_train_request,
+)
+from ._serialization.converters import (
+    read_model_listing,
+    read_model,
+)
 
 
 class FormRecognizerClient:
@@ -52,3 +62,26 @@ class FormRecognizerClient:
         response = self._pipeline.run(request)
         http_response = response.http_response  # type: RequestsTransportResponse
         return read_model_listing(http_response)  # TODO: paging
+
+    def begin_train(self, source: str, prefix: str = None, include_sub_folders: bool = None, polling_interval: int = 10):
+        # Delayed import to avoid circular import
+        from ._polling import get_train_operation_id
+        request = create_train_request(
+            source=source,
+            prefix=prefix,
+            include_sub_folders=include_sub_folders)
+        response = self._pipeline.run(request)
+        http_response = response.http_response  # type: RequestsTransportResponse
+        operation_id = get_train_operation_id(http_response)
+        return self.get_train_operation(operation_id, polling_interval)
+
+    def get_train_operation(self, operation_id: str, polling_interval: int = 10):
+        # Delayed import to avoid circular import
+        from ._polling import TrainModelOperation
+        return TrainModelOperation(self, operation_id, polling_interval)
+
+    def get_model(self, model_id: str):
+        request = create_get_model_request(model_id)
+        response = self._pipeline.run(request)
+        http_response = response.http_response  # type: RequestsTransportResponse
+        return read_model(http_response)
