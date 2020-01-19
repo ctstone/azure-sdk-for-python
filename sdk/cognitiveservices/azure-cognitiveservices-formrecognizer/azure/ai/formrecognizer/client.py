@@ -24,7 +24,8 @@
 #
 # --------------------------------------------------------------------------
 
-from typing import Dict
+from typing import Dict, Tuple, Iterable
+from azure.core.paging import PageIterator
 from azure.core.pipeline import Pipeline
 from azure.core.pipeline.policies import HeadersPolicy, ContentDecodePolicy
 from azure.core.pipeline.transport import RequestsTransport, RequestsTransportResponse
@@ -41,6 +42,7 @@ from ._serialization.converters import (
     read_model_listing,
     read_model,
 )
+from .models import ModelInfo
 
 
 class FormRecognizerClient:
@@ -58,10 +60,20 @@ class FormRecognizerClient:
         self._pipeline = Pipeline(transport, policies=policies)
 
     def list_models(self, next_link: str = None):
-        request = create_list_models_request()
-        response = self._pipeline.run(request)
-        http_response = response.http_response  # type: RequestsTransportResponse
-        return read_model_listing(http_response)  # TODO: paging
+        def get_next(continuation_token: str) -> RequestsTransportResponse:
+            request = create_list_models_request(next_link)
+            return self._pipeline.run(request).http_response
+
+        def extract_data(response: RequestsTransportResponse) -> Tuple[str, Iterable[ModelInfo]]:
+            listing = read_model_listing(response)
+            continuation_token = listing.next_link if listing.next_link else None
+            print(continuation_token)
+            return continuation_token, listing.model_list
+
+        return PageIterator[ModelInfo](
+            get_next=get_next,
+            extract_data=extract_data,
+            continuation_token=next_link)
 
     def begin_train(self, source: str, prefix: str = None, include_sub_folders: bool = None, polling_interval: int = 10):
         # Delayed import to avoid circular import
