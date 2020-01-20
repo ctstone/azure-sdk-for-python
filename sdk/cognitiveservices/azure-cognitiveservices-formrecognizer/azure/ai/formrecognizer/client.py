@@ -67,7 +67,6 @@ class FormRecognizerClient:
         def extract_data(response: RequestsTransportResponse) -> Tuple[str, Iterable[ModelInfo]]:
             listing = read_model_listing(response)
             continuation_token = listing.next_link if listing.next_link else None
-            print(continuation_token)
             return continuation_token, listing.model_list
 
         return PageIterator[ModelInfo](
