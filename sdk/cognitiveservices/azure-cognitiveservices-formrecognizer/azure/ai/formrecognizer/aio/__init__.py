@@ -25,6 +25,6 @@
 # --------------------------------------------------------------------------
 
 
-from .form_recognizer_client_async import FormRecognizerClientAsync as FormRecognizerClient
+from .client import FormRecognizerClientAsync as FormRecognizerClient
 
 __all__ = ['FormRecognizerClient']

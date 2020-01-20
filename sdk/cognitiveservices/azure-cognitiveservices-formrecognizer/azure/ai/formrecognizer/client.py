@@ -88,8 +88,12 @@ class FormRecognizerClient:
 
     def get_train_operation(self, operation_id: str, polling_interval: int = 10):
         # Delayed import to avoid circular import
-        from ._polling import TrainModelOperation
-        return TrainModelOperation(self, operation_id, polling_interval)
+        from ._polling import TrainModelOperation, TrainPollingMethod
+        polling_method = TrainPollingMethod(operation_id, polling_interval)
+        return TrainModelOperation(
+            client=self,
+            polling_method=polling_method,
+            operation_id=operation_id)
 
     def get_model(self, model_id: str):
         request = create_get_model_request(model_id)
