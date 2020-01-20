@@ -15,11 +15,11 @@ def main():
         api_key='123',
         custom_headers=custom_headers)
 
-    # # List Models
-    # pages = client.list_models()
-    # for page in pages:
-    #     for model in page:
-    #         print(model.model_id)
+    # List Models
+    pages = client.list_models()
+    for page in pages:
+        for model in page:
+            print(model.model_id)
 
     # # Get Model
     # model = client.get_model('30620738-ebd2-43d5-b6e0-a1bec5c87aea')
@@ -49,11 +49,12 @@ async def run_async():
         endpoint='http://192.168.1.4:5000',
         api_key='123',
         custom_headers=custom_headers)
-    listing = await client.list_models()
-    for model_info in listing.model_list:
-        print(model_info.model_id)
+    pages = client.list_models()
+    async for page in pages:  # pylint: disable=not-an-iterable
+        async for model in page:
+            print(model)
 
 
 if __name__ == '__main__':
-    # main_async()
-    main()
+    main_async()
+    # main()

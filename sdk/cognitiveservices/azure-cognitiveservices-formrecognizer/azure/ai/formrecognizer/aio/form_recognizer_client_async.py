@@ -20,7 +20,7 @@ class FormRecognizerClientAsync:
         ]
         self._pipeline = AsyncPipeline(transport, policies=policies)
 
-    async def list_models(self, next_link: str = None):
+    def list_models(self, next_link: str = None):
         async def get_next(continuation_token: str) -> Awaitable[AioHttpTransportResponse]:
             request = create_list_models_request(next_link=next_link)
             async with self._pipeline as pipeline:
@@ -28,7 +28,9 @@ class FormRecognizerClientAsync:
                 return response.http_response
 
         async def extract_data(response: AioHttpTransportResponse) -> Awaitable[Tuple[str, AsyncIterator[ModelInfo]]]:
-            return read_model_listing(response)
+            listing = read_model_listing(response)
+            continuation_token = listing.next_link if listing.next_link else None
+            return continuation_token, listing.model_list
 
         return AsyncPageIterator[ModelInfo](
             get_next=get_next,
